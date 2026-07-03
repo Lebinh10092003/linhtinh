@@ -4,8 +4,21 @@ Bộ file này dùng chính ảnh mẫu làm nguồn để hiển thị giống 
 
 ## File chính
 
-- `index.html`: mở trên trình duyệt để xem đúng mẫu, tải PNG/JPG/SVG hoặc in/lưu PDF.
+- `tool.html`: công cụ mở bằng trình duyệt, chọn ảnh mẫu và xuất PNG A4 300DPI hoặc in/lưu PDF.
+- `src/build_print_files.py`: script Python xuất PNG, JPG và PDF A4 300DPI từ ảnh gốc.
 - Bản ZIP từ ChatGPT có thêm các file in sẵn: PDF A4 300DPI, PNG A4 300DPI, JPG chất lượng cao và SVG.
+
+## Cách dùng trên GitHub Pages
+
+Mở `tool.html`, chọn chính ảnh mẫu đã gửi, sau đó bấm tải PNG A4 300DPI hoặc in/lưu PDF.
+
+## Cách chạy bằng Python
+
+Đặt ảnh mẫu vào `assets/poster-original.png`, sau đó chạy:
+
+```bash
+python src/build_print_files.py
+```
 
 ## Lưu ý kỹ thuật
 

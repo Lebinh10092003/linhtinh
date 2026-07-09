@@ -1,21 +1,527 @@
 <!doctype html>
 <html lang="vi">
-<head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Bộ chữ ký email FermatTech</title>
-<style>
-:root{--b:#1473d1;--d:#0f3a72;--t:#28323d;--m:#667085;--l:#d9e2ef;--bg:#f4f7fb}*{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:Arial,Helvetica,sans-serif;color:var(--t)}.app{max-width:1220px;margin:auto;padding:24px}.head{background:linear-gradient(135deg,#0f3a72,#1473d1);color:white;border-radius:20px;padding:22px 26px;margin-bottom:18px}.head h1{margin:0 0 8px;font-size:24px}.head p{margin:0;font-size:14px;line-height:1.45}.tabs{display:flex;gap:10px;margin:18px 0}.tab{border:1px solid var(--l);background:white;color:var(--d);padding:12px 16px;border-radius:12px;font-weight:700;cursor:pointer}.tab.on{background:var(--b);color:white;border-color:var(--b)}.grid{display:grid;grid-template-columns:minmax(690px,1fr) 360px;gap:16px}.card{background:white;border:1px solid var(--l);border-radius:18px;box-shadow:0 8px 22px rgba(15,58,114,.06)}.preview{padding:18px;overflow:auto}.top{display:grid;grid-template-columns:1fr auto;gap:14px;align-items:end;margin-bottom:12px}.selectbox{max-width:430px}label{display:block;font-size:12px;font-weight:700;color:var(--d);margin-bottom:6px}select,input,textarea{width:100%;border:1px solid #cfd9e7;border-radius:12px;padding:10px 12px;font-size:13px;font-family:Arial,Helvetica,sans-serif;outline:none}.actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}.btn{border:0;padding:10px 14px;border-radius:12px;font-weight:700;cursor:pointer;font-size:13px}.primary{background:var(--b);color:white}.ghost{background:#eef4fb;color:var(--d)}#state{font-size:13px;color:#12805c;font-weight:700;min-height:18px;margin:4px 0 12px}.pill{display:inline-block;background:#eef6ff;color:var(--d);font-weight:700;border-radius:999px;padding:7px 11px;font-size:12px;margin-bottom:10px}.stage{background:white;padding:18px;border-radius:14px;border:1px dashed #b9c8db;min-width:690px}.editor{padding:16px;position:sticky;top:18px}.editor h2{font-size:16px;color:var(--d);margin:4px 0 12px}.field{margin-bottom:11px}.field textarea{min-height:72px;resize:vertical}.hint{font-size:12px;color:var(--m);line-height:1.45;background:#f7f9fc;border-radius:12px;padding:10px;margin-top:10px}@media(max-width:1050px){.grid{grid-template-columns:1fr}.editor{position:static}.top{grid-template-columns:1fr}.actions{justify-content:flex-start}}
-</style>
-</head>
-<body>
-<div class="app"><div class="head"><h1>Bộ chữ ký email FermatTech</h1><p>Chọn nhân sự bằng menu thả xuống, chuyển giữa 02 trang Việt/Anh, chỉnh nội dung tại panel bên phải, sau đó bấm “Copy chữ ký”.</p></div><div class="tabs"><button class="tab on" data-lang="vn">Trang 1 · Bản tiếng Việt</button><button class="tab" data-lang="en">Trang 2 · English version</button></div><div class="grid"><main class="card preview"><div class="top"><div class="selectbox"><label for="staff">Danh sách nhân sự</label><select id="staff"></select></div><div class="actions"><button class="btn primary" id="copy">Copy chữ ký</button><button class="btn ghost" id="reset">Khôi phục</button></div></div><div id="state"></div><div class="pill" id="person"></div><div class="stage"><div id="sig"></div></div></main><aside class="card editor"><h2>Panel sửa nội dung</h2><div class="field"><label>Họ tên</label><input id="name"></div><div class="field"><label>Chức vụ</label><input id="role"></div><div class="field"><label>Tên công ty</label><input id="company"></div><div class="field"><label>Số điện thoại</label><input id="phone"></div><div class="field"><label>Email chính</label><input id="email"></div><div class="field"><label>Email phụ</label><input id="alt" placeholder="Có thể để trống"></div><div class="field"><label>Website</label><input id="web"></div><div class="field"><label>Địa chỉ</label><textarea id="addr"></textarea></div><div class="hint">Sau khi chỉnh nội dung, bản xem trước sẽ tự cập nhật. Nút Copy sẽ lấy đúng nội dung mới đang hiển thị.</div></aside></div></div>
-<script>
-const ORG={logoUrl:'https://lebinh10092003.github.io/linhtinh/assets/fermattech-logo.svg',companyVn:'CÔNG TY CỔ PHẦN CÔNG NGHỆ FERMAT',companyEn:'FERMAT TECHNOLOGY JOINT STOCK COMPANY',addressVn:'Phòng 1603, Tòa nhà Eurowindow, 27 Trần Duy Hưng, Phường Yên Hòa, Hà Nội',addressEn:'Room 1603, Eurowindow Building, 27 Tran Duy Hung Street, Yen Hoa Ward, Hanoi, Vietnam',website:'www.fermat.vn',employees:[['LÊ ĐỨC THUẬN','LE DUC THUAN','Chủ tịch','Chairman','0983122314','thuanld@fermat.edu.vn','thuanld.fe@gmail.com'],['PHẠM VIỆT DŨNG','PHAM VIET DUNG','Phó Giám đốc','Deputy Director','0984690582','dungpv@fermat.edu.vn',''],['NGÔ THỊ LIÊN','NGO THI LIEN','Phó Giám đốc','Deputy Director','0988955694','liennt@fermat.edu.vn',''],['NGUYỄN HẢI HÀ','NGUYEN HAI HA','Kế toán','Accountant','0963495440','hanh@fermat.edu.vn','nguyenhaiha233kt@gmail.com'],['NGÔ THỊ NGỌC YẾN','NGO THI NGOC YEN','Trưởng phòng Truyền thông','Head of Communications Department','0902653738','yenntn@fermat.edu.vn',''],['LÊ VĂN BÌNH','LE VAN BINH','Nhân viên Phòng CNTT','IT Officer','0374202948','binhlv@fermat.edu.vn',''],['NGUYỄN THANH PHONG','NGUYEN THANH PHONG','Nhân viên Phòng Khảo thí','Assessment Department Officer','0869962581','phongnt@fermat.edu.vn',''],['NGUYỄN THU PHƯƠNG','NGUYEN THU PHUONG','Nhân viên Truyền thông','Communications Officer','0367468521','phuongnt@fermat.edu.vn','']]};
-let D=JSON.parse(JSON.stringify(ORG)),lang='vn',idx=0;const $=id=>document.getElementById(id),E={staff:$('staff'),sig:$('sig'),state:$('state'),person:$('person'),name:$('name'),role:$('role'),company:$('company'),phone:$('phone'),email:$('email'),alt:$('alt'),web:$('web'),addr:$('addr')};
-function esc(v){return String(v??'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#039;')}function fmt(v){const d=String(v||'').replace(/\D/g,'');return d.startsWith('0')&&d.length===10?'+84 '+d.slice(1,4)+' '+d.slice(4,7)+' '+d.slice(7):v||''}function base(){let e=D.employees[idx],vn=lang==='vn';return{name:vn?e[0]:e[1],role:vn?e[2]:e[3],company:vn?D.companyVn:D.companyEn,address:vn?D.addressVn:D.addressEn,page:vn?'Bản tiếng Việt':'English version',labels:{address:vn?'Địa chỉ':'Address',mobile:vn?'Di động':'Mobile',email:'Email',website:'Website',alt:vn?'Email phụ':'Alternative email'}}}
-function values(){let b=base();return{name:E.name.value,role:E.role.value,company:E.company.value,phone:E.phone.value,email:E.email.value,alt:E.alt.value,web:E.web.value,address:E.addr.value,labels:b.labels}}
-function sig(v){let alt=v.alt?`<td style="padding:2px 12px 5px 0"><span style="display:inline-block;width:18px;height:18px;line-height:18px;text-align:center;border-radius:50%;background:#1473d1;color:#fff;font-size:10px;font-weight:700;margin-right:7px;font-family:Arial,Helvetica,sans-serif">E</span>${v.labels.alt}: ${esc(v.alt)}</td>`:`<td style="padding:2px 12px 5px 0"></td>`;return `<table cellpadding="0" cellspacing="0" style="width:650px;border-collapse:collapse;border-top:5px solid #1473d1;border-bottom:9px solid #1473d1;background:#fff"><tr><td style="width:185px;padding:24px 24px 20px 14px;vertical-align:middle;text-align:center;border-right:1px solid #dcdcdc;font-family:Arial,Helvetica,sans-serif"><img src="${D.logoUrl}" alt="FermatTech" style="display:block;width:160px;max-width:160px;height:auto;border:0;outline:none;text-decoration:none;margin:0 auto"></td><td style="padding:17px 0 16px 25px;vertical-align:top;font-family:Arial,Helvetica,sans-serif;color:#333"><div style="font-size:22px;font-weight:700;color:#1473d1;letter-spacing:.3px;margin-bottom:8px;text-transform:uppercase">${esc(v.name)}</div><div style="font-size:13px;color:#333;margin-bottom:8px">${esc(v.role)}</div><div style="font-size:14px;font-weight:700;color:#006fe6;text-transform:uppercase;margin-bottom:12px">${esc(v.company)}</div><div style="border-top:1px solid #dcdcdc;width:440px;margin:0 0 12px 0"></div><table cellpadding="0" cellspacing="0" style="border-collapse:collapse;font-size:12px;line-height:1.45;font-family:Arial,Helvetica,sans-serif;color:#333"><tr><td colspan="2" style="padding:2px 12px 5px 0"><span style="display:inline-block;width:18px;height:18px;line-height:18px;text-align:center;border-radius:50%;background:#1473d1;color:#fff;font-size:10px;font-weight:700;margin-right:7px;font-family:Arial,Helvetica,sans-serif">A</span>${v.labels.address}: ${esc(v.address)}</td></tr><tr><td style="padding:2px 12px 5px 0"><span style="display:inline-block;width:18px;height:18px;line-height:18px;text-align:center;border-radius:50%;background:#1473d1;color:#fff;font-size:10px;font-weight:700;margin-right:7px;font-family:Arial,Helvetica,sans-serif">M</span>${v.labels.mobile}: ${esc(fmt(v.phone))}</td><td style="padding:2px 12px 5px 0"><span style="display:inline-block;width:18px;height:18px;line-height:18px;text-align:center;border-radius:50%;background:#1473d1;color:#fff;font-size:10px;font-weight:700;margin-right:7px;font-family:Arial,Helvetica,sans-serif">E</span>${v.labels.email}: ${esc(v.email)}</td></tr><tr><td style="padding:2px 12px 5px 0"><span style="display:inline-block;width:18px;height:18px;line-height:18px;text-align:center;border-radius:50%;background:#1473d1;color:#fff;font-size:10px;font-weight:700;margin-right:7px;font-family:Arial,Helvetica,sans-serif">W</span>${v.labels.website}: ${esc(v.web)}</td>${alt}</tr></table></td></tr></table>`}
-function fill(){E.staff.innerHTML='';D.employees.forEach((e,i)=>{let o=document.createElement('option');o.value=i;o.textContent=`${i+1}. ${e[0]} — ${e[2]}`;E.staff.appendChild(o)});E.staff.value=idx}function load(){let b=base(),e=D.employees[idx];E.name.value=b.name;E.role.value=b.role;E.company.value=b.company;E.phone.value=e[4];E.email.value=e[5];E.alt.value=e[6]||'';E.web.value=D.website;E.addr.value=b.address;E.state.textContent=''}function save(){let e=D.employees[idx];if(lang==='vn'){e[0]=E.name.value;e[2]=E.role.value;D.companyVn=E.company.value;D.addressVn=E.addr.value}else{e[1]=E.name.value;e[3]=E.role.value;D.companyEn=E.company.value;D.addressEn=E.addr.value}e[4]=E.phone.value;e[5]=E.email.value;e[6]=E.alt.value;D.website=E.web.value}function render(){let b=base();E.sig.innerHTML=sig(values());E.person.textContent=`${b.page} · ${E.name.value}`}['name','role','company','phone','email','alt','web','addr'].forEach(id=>E[id].addEventListener('input',()=>{save();fill();render()}));E.staff.onchange=()=>{idx=+E.staff.value;load();render()};document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{lang=b.dataset.lang;document.querySelectorAll('.tab').forEach(x=>x.classList.remove('on'));b.classList.add('on');load();render()});$('reset').onclick=()=>{D=JSON.parse(JSON.stringify(ORG));load();fill();render();E.state.textContent='Đã khôi phục dữ liệu gốc.'};$('copy').onclick=async()=>{let h=sig(values());try{if(navigator.clipboard&&window.ClipboardItem){await navigator.clipboard.write([new ClipboardItem({'text/html':new Blob([h],{type:'text/html'}),'text/plain':new Blob([E.sig.innerText],{type:'text/plain'})})])}else{let r=document.createRange();r.selectNodeContents(E.sig);let s=getSelection();s.removeAllRanges();s.addRange(r);document.execCommand('copy');s.removeAllRanges()}E.state.textContent='Đã copy chữ ký.'}catch(e){E.state.textContent='Không copy được tự động. Hãy bôi đen vùng chữ ký và Ctrl+C.'}};fill();load();render();
-</script>
-</body>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Bộ chữ ký email FermatTech</title>
+    <style>
+      :root {
+        --b: #1473d1;
+        --d: #0f3a72;
+        --t: #28323d;
+        --m: #667085;
+        --l: #d9e2ef;
+        --bg: #f4f7fb;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: var(--bg);
+        font-family: Arial, Helvetica, sans-serif;
+        color: var(--t);
+      }
+      .app {
+        max-width: 1220px;
+        margin: auto;
+        padding: 24px;
+      }
+      .head {
+        background: linear-gradient(135deg, #0f3a72, #1473d1);
+        color: white;
+        border-radius: 20px;
+        padding: 22px 26px;
+        margin-bottom: 18px;
+      }
+      .head h1 {
+        margin: 0 0 8px;
+        font-size: 24px;
+      }
+      .head p {
+        margin: 0;
+        font-size: 14px;
+        line-height: 1.45;
+      }
+      .tabs {
+        display: flex;
+        gap: 10px;
+        margin: 18px 0;
+      }
+      .tab {
+        border: 1px solid var(--l);
+        background: white;
+        color: var(--d);
+        padding: 12px 16px;
+        border-radius: 12px;
+        font-weight: 700;
+        cursor: pointer;
+      }
+      .tab.on {
+        background: var(--b);
+        color: white;
+        border-color: var(--b);
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: minmax(690px, 1fr) 360px;
+        gap: 16px;
+      }
+      .card {
+        background: white;
+        border: 1px solid var(--l);
+        border-radius: 18px;
+        box-shadow: 0 8px 22px rgba(15, 58, 114, 0.06);
+      }
+      .preview {
+        padding: 18px;
+        overflow: auto;
+      }
+      .top {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 14px;
+        align-items: end;
+        margin-bottom: 12px;
+      }
+      .selectbox {
+        max-width: 430px;
+      }
+      label {
+        display: block;
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--d);
+        margin-bottom: 6px;
+      }
+      select,
+      input,
+      textarea {
+        width: 100%;
+        border: 1px solid #cfd9e7;
+        border-radius: 12px;
+        padding: 10px 12px;
+        font-size: 13px;
+        font-family: Arial, Helvetica, sans-serif;
+        outline: none;
+      }
+      .actions {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+      }
+      .btn {
+        border: 0;
+        padding: 10px 14px;
+        border-radius: 12px;
+        font-weight: 700;
+        cursor: pointer;
+        font-size: 13px;
+      }
+      .primary {
+        background: var(--b);
+        color: white;
+      }
+      .ghost {
+        background: #eef4fb;
+        color: var(--d);
+      }
+      #state {
+        font-size: 13px;
+        color: #12805c;
+        font-weight: 700;
+        min-height: 18px;
+        margin: 4px 0 12px;
+      }
+      .pill {
+        display: inline-block;
+        background: #eef6ff;
+        color: var(--d);
+        font-weight: 700;
+        border-radius: 999px;
+        padding: 7px 11px;
+        font-size: 12px;
+        margin-bottom: 10px;
+      }
+      .stage {
+        background: white;
+        padding: 18px;
+        border-radius: 14px;
+        border: 1px dashed #b9c8db;
+        min-width: 690px;
+      }
+      .editor {
+        padding: 16px;
+        position: sticky;
+        top: 18px;
+      }
+      .editor h2 {
+        font-size: 16px;
+        color: var(--d);
+        margin: 4px 0 12px;
+      }
+      .field {
+        margin-bottom: 11px;
+      }
+      .field textarea {
+        min-height: 72px;
+        resize: vertical;
+      }
+      .hint {
+        font-size: 12px;
+        color: var(--m);
+        line-height: 1.45;
+        background: #f7f9fc;
+        border-radius: 12px;
+        padding: 10px;
+        margin-top: 10px;
+      }
+      @media (max-width: 1050px) {
+        .grid {
+          grid-template-columns: 1fr;
+        }
+        .editor {
+          position: static;
+        }
+        .top {
+          grid-template-columns: 1fr;
+        }
+        .actions {
+          justify-content: flex-start;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app">
+      <div class="head">
+        <h1>Bộ chữ ký email FermatTech</h1>
+        <p>
+          Chọn nhân sự bằng menu thả xuống, chuyển giữa 02 trang Việt/Anh, chỉnh
+          nội dung tại panel bên phải, sau đó bấm “Copy chữ ký”.
+        </p>
+      </div>
+      <div class="tabs">
+        <button class="tab on" data-lang="vn">Trang 1 · Bản tiếng Việt</button
+        ><button class="tab" data-lang="en">Trang 2 · English version</button>
+      </div>
+      <div class="grid">
+        <main class="card preview">
+          <div class="top">
+            <div class="selectbox">
+              <label for="staff">Danh sách nhân sự</label
+              ><select id="staff"></select>
+            </div>
+            <div class="actions">
+              <button class="btn primary" id="copy">Copy chữ ký</button
+              ><button class="btn ghost" id="reset">Khôi phục</button>
+            </div>
+          </div>
+          <div id="state"></div>
+          <div class="pill" id="person"></div>
+          <div class="stage"><div id="sig"></div></div>
+        </main>
+        <aside class="card editor">
+          <h2>Panel sửa nội dung</h2>
+          <div class="field"><label>Họ tên</label><input id="name" /></div>
+          <div class="field"><label>Chức vụ</label><input id="role" /></div>
+          <div class="field">
+            <label>Tên công ty</label><input id="company" />
+          </div>
+          <div class="field">
+            <label>Số điện thoại</label><input id="phone" />
+          </div>
+          <div class="field">
+            <label>Email chính</label><input id="email" />
+          </div>
+          <div class="field">
+            <label>Email phụ</label
+            ><input id="alt" placeholder="Có thể để trống" />
+          </div>
+          <div class="field"><label>Website</label><input id="web" /></div>
+          <div class="field">
+            <label>Địa chỉ</label><textarea id="addr"></textarea>
+          </div>
+          <div class="hint">
+            Sau khi chỉnh nội dung, bản xem trước sẽ tự cập nhật. Nút Copy sẽ
+            lấy đúng nội dung mới đang hiển thị.
+          </div>
+        </aside>
+      </div>
+    </div>
+    <script>
+      const ORG = {
+        logoUrl:
+          "https://lebinh10092003.github.io/linhtinh/assets/logo-fermat.png",
+        companyVn: "CÔNG TY CỔ PHẦN CÔNG NGHỆ FERMAT",
+        companyEn: "FERMAT TECHNOLOGY JOINT STOCK COMPANY",
+        addressVn:
+          "Phòng 1603, Tòa nhà Eurowindow, 27 Trần Duy Hưng, Phường Yên Hòa, Hà Nội",
+        addressEn:
+          "Room 1603, Eurowindow Building, 27 Tran Duy Hung Street, Yen Hoa Ward, Hanoi, Vietnam",
+        website: "www.fermat.vn",
+        employees: [
+          [
+            "LÊ ĐỨC THUẬN",
+            "LE DUC THUAN",
+            "Chủ tịch",
+            "Chairman",
+            "0983122314",
+            "thuanld@fermat.edu.vn",
+            "thuanld.fe@gmail.com",
+          ],
+          [
+            "PHẠM VIỆT DŨNG",
+            "PHAM VIET DUNG",
+            "Phó Giám đốc",
+            "Deputy Director",
+            "0984690582",
+            "dungpv@fermat.edu.vn",
+            "",
+          ],
+          [
+            "NGÔ THỊ LIÊN",
+            "NGO THI LIEN",
+            "Phó Giám đốc",
+            "Deputy Director",
+            "0988955694",
+            "liennt@fermat.edu.vn",
+            "",
+          ],
+          [
+            "NGUYỄN HẢI HÀ",
+            "NGUYEN HAI HA",
+            "Kế toán",
+            "Accountant",
+            "0963495440",
+            "hanh@fermat.edu.vn",
+            "nguyenhaiha233kt@gmail.com",
+          ],
+          [
+            "NGÔ THỊ NGỌC YẾN",
+            "NGO THI NGOC YEN",
+            "Trưởng phòng Truyền thông",
+            "Head of Communications Department",
+            "0902653738",
+            "yenntn@fermat.edu.vn",
+            "",
+          ],
+          [
+            "LÊ VĂN BÌNH",
+            "LE VAN BINH",
+            "Nhân viên Phòng CNTT",
+            "IT Officer",
+            "0374202948",
+            "binhlv@fermat.edu.vn",
+            "",
+          ],
+          [
+            "NGUYỄN THANH PHONG",
+            "NGUYEN THANH PHONG",
+            "Nhân viên Phòng Khảo thí",
+            "Assessment Department Officer",
+            "0869962581",
+            "phongnt@fermat.edu.vn",
+            "",
+          ],
+          [
+            "NGUYỄN THU PHƯƠNG",
+            "NGUYEN THU PHUONG",
+            "Nhân viên Truyền thông",
+            "Communications Officer",
+            "0367468521",
+            "phuongnt@fermat.edu.vn",
+            "",
+          ],
+        ],
+      };
+      let D = JSON.parse(JSON.stringify(ORG)),
+        lang = "vn",
+        idx = 0;
+      const $ = (id) => document.getElementById(id),
+        E = {
+          staff: $("staff"),
+          sig: $("sig"),
+          state: $("state"),
+          person: $("person"),
+          name: $("name"),
+          role: $("role"),
+          company: $("company"),
+          phone: $("phone"),
+          email: $("email"),
+          alt: $("alt"),
+          web: $("web"),
+          addr: $("addr"),
+        };
+      function esc(v) {
+        return String(v ?? "")
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll('"', "&quot;")
+          .replaceAll("'", "&#039;");
+      }
+      function fmt(v) {
+        const d = String(v || "").replace(/\D/g, "");
+        return d.startsWith("0") && d.length === 10
+          ? "+84 " + d.slice(1, 4) + " " + d.slice(4, 7) + " " + d.slice(7)
+          : v || "";
+      }
+      function base() {
+        let e = D.employees[idx],
+          vn = lang === "vn";
+        return {
+          name: vn ? e[0] : e[1],
+          role: vn ? e[2] : e[3],
+          company: vn ? D.companyVn : D.companyEn,
+          address: vn ? D.addressVn : D.addressEn,
+          page: vn ? "Bản tiếng Việt" : "English version",
+          labels: {
+            address: vn ? "Địa chỉ" : "Address",
+            mobile: vn ? "Di động" : "Mobile",
+            email: "Email",
+            website: "Website",
+            alt: vn ? "Email phụ" : "Alternative email",
+          },
+        };
+      }
+      function values() {
+        let b = base();
+        return {
+          name: E.name.value,
+          role: E.role.value,
+          company: E.company.value,
+          phone: E.phone.value,
+          email: E.email.value,
+          alt: E.alt.value,
+          web: E.web.value,
+          address: E.addr.value,
+          labels: b.labels,
+        };
+      }
+      function sig(v) {
+        let alt = v.alt
+          ? `<td style="padding:2px 12px 5px 0"><span style="display:inline-block;width:18px;height:18px;line-height:18px;text-align:center;border-radius:50%;background:#1473d1;color:#fff;font-size:10px;font-weight:700;margin-right:7px;font-family:Arial,Helvetica,sans-serif">E</span>${v.labels.alt}: ${esc(v.alt)}</td>`
+          : `<td style="padding:2px 12px 5px 0"></td>`;
+        return `<table cellpadding="0" cellspacing="0" style="width:650px;border-collapse:collapse;border-top:5px solid #1473d1;border-bottom:9px solid #1473d1;background:#fff"><tr><td style="width:185px;padding:24px 24px 20px 14px;vertical-align:middle;text-align:center;border-right:1px solid #dcdcdc;font-family:Arial,Helvetica,sans-serif"><img src="${D.logoUrl}" alt="FermatTech" style="display:block;width:160px;max-width:160px;height:auto;border:0;outline:none;text-decoration:none;margin:0 auto"></td><td style="padding:17px 0 16px 25px;vertical-align:top;font-family:Arial,Helvetica,sans-serif;color:#333"><div style="font-size:22px;font-weight:700;color:#1473d1;letter-spacing:.3px;margin-bottom:8px;text-transform:uppercase">${esc(v.name)}</div><div style="font-size:13px;color:#333;margin-bottom:8px">${esc(v.role)}</div><div style="font-size:14px;font-weight:700;color:#006fe6;text-transform:uppercase;margin-bottom:12px">${esc(v.company)}</div><div style="border-top:1px solid #dcdcdc;width:440px;margin:0 0 12px 0"></div><table cellpadding="0" cellspacing="0" style="border-collapse:collapse;font-size:12px;line-height:1.45;font-family:Arial,Helvetica,sans-serif;color:#333"><tr><td colspan="2" style="padding:2px 12px 5px 0"><span style="display:inline-block;width:18px;height:18px;line-height:18px;text-align:center;border-radius:50%;background:#1473d1;color:#fff;font-size:10px;font-weight:700;margin-right:7px;font-family:Arial,Helvetica,sans-serif">A</span>${v.labels.address}: ${esc(v.address)}</td></tr><tr><td style="padding:2px 12px 5px 0"><span style="display:inline-block;width:18px;height:18px;line-height:18px;text-align:center;border-radius:50%;background:#1473d1;color:#fff;font-size:10px;font-weight:700;margin-right:7px;font-family:Arial,Helvetica,sans-serif">M</span>${v.labels.mobile}: ${esc(fmt(v.phone))}</td><td style="padding:2px 12px 5px 0"><span style="display:inline-block;width:18px;height:18px;line-height:18px;text-align:center;border-radius:50%;background:#1473d1;color:#fff;font-size:10px;font-weight:700;margin-right:7px;font-family:Arial,Helvetica,sans-serif">E</span>${v.labels.email}: ${esc(v.email)}</td></tr><tr><td style="padding:2px 12px 5px 0"><span style="display:inline-block;width:18px;height:18px;line-height:18px;text-align:center;border-radius:50%;background:#1473d1;color:#fff;font-size:10px;font-weight:700;margin-right:7px;font-family:Arial,Helvetica,sans-serif">W</span>${v.labels.website}: ${esc(v.web)}</td>${alt}</tr></table></td></tr></table>`;
+      }
+      function fill() {
+        E.staff.innerHTML = "";
+        D.employees.forEach((e, i) => {
+          let o = document.createElement("option");
+          o.value = i;
+          o.textContent = `${i + 1}. ${e[0]} — ${e[2]}`;
+          E.staff.appendChild(o);
+        });
+        E.staff.value = idx;
+      }
+      function load() {
+        let b = base(),
+          e = D.employees[idx];
+        E.name.value = b.name;
+        E.role.value = b.role;
+        E.company.value = b.company;
+        E.phone.value = e[4];
+        E.email.value = e[5];
+        E.alt.value = e[6] || "";
+        E.web.value = D.website;
+        E.addr.value = b.address;
+        E.state.textContent = "";
+      }
+      function save() {
+        let e = D.employees[idx];
+        if (lang === "vn") {
+          e[0] = E.name.value;
+          e[2] = E.role.value;
+          D.companyVn = E.company.value;
+          D.addressVn = E.addr.value;
+        } else {
+          e[1] = E.name.value;
+          e[3] = E.role.value;
+          D.companyEn = E.company.value;
+          D.addressEn = E.addr.value;
+        }
+        e[4] = E.phone.value;
+        e[5] = E.email.value;
+        e[6] = E.alt.value;
+        D.website = E.web.value;
+      }
+      function render() {
+        let b = base();
+        E.sig.innerHTML = sig(values());
+        E.person.textContent = `${b.page} · ${E.name.value}`;
+      }
+      [
+        "name",
+        "role",
+        "company",
+        "phone",
+        "email",
+        "alt",
+        "web",
+        "addr",
+      ].forEach((id) =>
+        E[id].addEventListener("input", () => {
+          save();
+          fill();
+          render();
+        }),
+      );
+      E.staff.onchange = () => {
+        idx = +E.staff.value;
+        load();
+        render();
+      };
+      document.querySelectorAll(".tab").forEach(
+        (b) =>
+          (b.onclick = () => {
+            lang = b.dataset.lang;
+            document
+              .querySelectorAll(".tab")
+              .forEach((x) => x.classList.remove("on"));
+            b.classList.add("on");
+            load();
+            render();
+          }),
+      );
+      $("reset").onclick = () => {
+        D = JSON.parse(JSON.stringify(ORG));
+        load();
+        fill();
+        render();
+        E.state.textContent = "Đã khôi phục dữ liệu gốc.";
+      };
+      $("copy").onclick = async () => {
+        let h = sig(values());
+        try {
+          if (navigator.clipboard && window.ClipboardItem) {
+            await navigator.clipboard.write([
+              new ClipboardItem({
+                "text/html": new Blob([h], { type: "text/html" }),
+                "text/plain": new Blob([E.sig.innerText], {
+                  type: "text/plain",
+                }),
+              }),
+            ]);
+          } else {
+            let r = document.createRange();
+            r.selectNodeContents(E.sig);
+            let s = getSelection();
+            s.removeAllRanges();
+            s.addRange(r);
+            document.execCommand("copy");
+            s.removeAllRanges();
+          }
+          E.state.textContent = "Đã copy chữ ký.";
+        } catch (e) {
+          E.state.textContent =
+            "Không copy được tự động. Hãy bôi đen vùng chữ ký và Ctrl+C.";
+        }
+      };
+      fill();
+      load();
+      render();
+    </script>
+  </body>
 </html>

@@ -1,7 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="320" height="150" viewBox="0 0 320 150">
-  <rect width="320" height="150" fill="#fff"/>
-  <text x="0" y="72" font-family="Arial, Helvetica, sans-serif" font-size="76" font-weight="700" fill="#193660">Fermat</text>
-  <path d="M150 130 L190 42 L230 130 L204 130 L190 98 L176 130 Z" fill="#168fc2"/>
-  <path d="M190 98 L210 130 L196 130 L182 108 Z" fill="#193660"/>
-  <text x="210" y="126" font-family="Arial, Helvetica, sans-serif" font-size="42" font-weight="600" fill="#777">Tech</text>
-</svg>
